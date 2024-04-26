@@ -1,6 +1,9 @@
-/*Admin page will be shown when
-Username: akshay9022@gmail.com & Password: akshay9022 */
- 
+
+
+//**Admin page will be shown when**
+//Username: akshay9022 & Password: akshay#5588 
+//Username: akshay9022@gmail.com & Password: akshay9022 
+
 //open terminal
 //cd backend 
 //node index.js 
@@ -17,6 +20,7 @@ class Home extends Component {
     state = {
         isLoggedIn: true,
         employees: [],
+        admin: [],
         username: '',
         password: '',
         showSubmitError: false,
@@ -24,20 +28,42 @@ class Home extends Component {
         adminPanel: false
     }
 
-    componentDidMount = () => {
-        this.allemployee()
+    componentDidMount = async () => {
+        await this.allemployee();
         const jwtToken = Cookies.get('jwt_token')
         if (jwtToken !== undefined) {
-            this.setState({isLoggedIn: false })
+            this.setState({ isLoggedIn: false })
+            await this.getAdmin(jwtToken);
         }
     }
 
-    onChangeUsername = event => {
+    onChangeUsername = (event) => {
         this.setState({ username: event.target.value })
     }
 
-    onChangePassword = event => {
+    onChangePassword = (event) => {
         this.setState({ password: event.target.value })
+    }
+
+    getAdmin = async (jwtToken) => {
+        const option = {
+            headers: {
+                Authorization: `Bearer ${jwtToken}`,
+            },
+            method: 'GET',
+        }
+        try {
+            const response = await fetch('/profile/', option);
+            if (!response.ok) {
+                throw new Error('Error fetching profile')
+            }
+            const data = await response.json()
+            if (data.role === 'admin') {
+                this.setState({ adminPanel: true })
+            }
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     onSubmitSuccess = (jwtToken, dbUser) => {
@@ -46,13 +72,6 @@ class Home extends Component {
             path: '/',
         })
         this.setState({ isLoggedIn: false })
-        this.onShowAdminPanel(dbUser);
-    }
-
-    onShowAdminPanel = (dbUser) => {
-        if (dbUser.username === 'akshay9022@gmail.com' && dbUser.password === '$2b$10$FiiPY.irgnCcAsxF2.nL2elBAn.2UTQ68SvqmJIvQTddhhs7SmH0y') {
-            this.setState({ adminPanel: true })
-        }
     }
 
     submitForm = async (event) => {
@@ -78,6 +97,7 @@ class Home extends Component {
 
             if (response.ok) {
                 this.onSubmitSuccess(jwtToken, dbUser)
+                await this.getAdmin(jwtToken); // Fetch admin data after successful login
             } else {
                 this.setState({ showSubmitError: true, errorMsg: data })
             }
@@ -87,7 +107,11 @@ class Home extends Component {
     }
 
     allemployee = async () => {
+        const jwtToken = Cookies.get('jwt_token')
         const option = {
+            headers: {
+                Authorization: `Bearer ${jwtToken}`,
+            },
             method: 'GET'
         }
         try {
@@ -119,9 +143,7 @@ class Home extends Component {
             <div className="container mt-5">
                 {isLoggedIn ? (
                     <div>
-                        <Link className="navbar-brand" to="/singup">
-                            <button className="btn btn-secondary"> Sign Up </button>
-                        </Link>
+
                         <div className="container d-flex justify-content-center flex-column">
                             <form onSubmit={this.submitForm} className="container">
                                 <legend>Login User</legend>
@@ -134,6 +156,9 @@ class Home extends Component {
                                     <input className="form-control" type="password" id="password" placeholder="Password" onChange={this.onChangePassword} value={password} />
                                 </div>
                                 <button type="submit" className="btn btn-primary">Login</button>
+                                <Link className="navbar-brand" to="/singup">
+                                    <button className="btn btn-secondary"> Sign Up </button>
+                                </Link>
                                 {showSubmitError && <p style={{ color: 'red' }}>{errorMsg}</p>}
                             </form>
                         </div>

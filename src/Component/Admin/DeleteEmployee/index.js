@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import Cookies from 'js-cookie';
 class DeleteEmployee extends Component {
   state = {
     id: ''
@@ -12,10 +12,11 @@ class DeleteEmployee extends Component {
   handleSubmitDelete = async (event) => {
     event.preventDefault();
     const { id } = this.state;
-
+    const jwtToken = Cookies.get('jwt_token')
     const options = {
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${jwtToken}`,
         'Content-Type': 'application/json'
       }
     };
@@ -25,7 +26,7 @@ class DeleteEmployee extends Component {
       if (!response.ok) {
         throw new Error('Delete request failed');
       }
-      console.log('Employee deleted successfully');
+      alert(`Employee id: ${id} Data Delete Successfully`)
       this.setState({id: ''})
       // Optionally, you can update the UI to reflect the deletion
     } catch (error) {

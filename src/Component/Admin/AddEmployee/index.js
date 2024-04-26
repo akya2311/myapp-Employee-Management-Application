@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Cookies from 'js-cookie';
 class AddEmployee extends Component {
     state = {
       name: '',
@@ -17,10 +18,11 @@ class AddEmployee extends Component {
       event.preventDefault();
       const { name, position } = this.state;
       const employeeDetails = { name, position };
-  
+      const jwtToken = Cookies.get('jwt_token')
       const options = {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${jwtToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(employeeDetails)
@@ -31,6 +33,7 @@ class AddEmployee extends Component {
         if (!response.ok) {
           throw new Error('Response post not ok');
         }
+        alert(`Employee id: ${name} Added Update Successfully`)
         this.setState({ name: '', position: '' });
       } catch (error) {
         console.error(error);

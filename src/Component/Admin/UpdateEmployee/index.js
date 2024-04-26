@@ -1,35 +1,35 @@
 
 import React, { Component } from 'react';
+import Cookies from 'js-cookie';
 class UpdateEmployee extends Component {
   state = {
     name: '',
     position: '',
     id: ''
-  };
-
-  handleChangeUpdateName = (event) => {
-    this.setState({ name: event.target.value });
-  };
-
-  handleChangeUpdatePosition = (event) => {
-    this.setState({ position: event.target.value });
-  };
-  handleChangeUpdateId = (event) => {
-    this.setState({ id: parseInt(event.target.value) });
+    
   };
   
-  onChange = (e) =>{
-    this.setState(preveState => ({name: preveState.e.target.value, position: preveState.e.target.value, id: preveState.e.target.value}))
+  onChangeId = (event) =>{
+    this.setState({id: event.target.value})
+  }
+  
+  onChangeName = (event) =>{
+    this.setState({name: event.target.value})
+  }
+  
+  onChangePosition = (event) =>{
+    this.setState({position: event.target.value})
   }
 
   handleSubmitUpdate = async (event) => {
     event.preventDefault();
     const { name, position, id } = this.state;
     const employeeDetails = { name, position };
-  
+    const jwtToken = Cookies.get('jwt_token')
     const options = {
       method: 'PUT',
       headers: {
+        Authorization: `Bearer ${jwtToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(employeeDetails)
@@ -40,6 +40,7 @@ class UpdateEmployee extends Component {
       if (!response.ok) {
         throw new Error('Response put not ok');
       }
+      alert(`Employee id: ${id} Data Update Successfully`)
       this.setState({ name: '', position: '', id: '' });
     } catch (error) {
       console.error(error);
@@ -61,7 +62,7 @@ class UpdateEmployee extends Component {
               id="id"
               name="id"
               value={id}
-              onChange={this.onChange}
+              onChange={this.onChangeId}
               required
             />
           </div>
@@ -73,7 +74,7 @@ class UpdateEmployee extends Component {
               id="name"
               name="name"
               value={name}
-              onChange={this.onChange}
+              onChange={this.onChangeName}
               required
             />
           </div>
@@ -85,7 +86,7 @@ class UpdateEmployee extends Component {
               id="position"
               name="position"
               value={position}
-              onChange={this.onChange}
+              onChange={this.onChangePosition}
               required
             />
           </div>
